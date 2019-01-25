@@ -46,23 +46,31 @@ while(phmeters_number > 4 || phmeters_number < 1)
 InizialicePHmeters(phmeters_number, pHDigPin); // Set the pins in digital, low mode.
 
 for (int i=0; i<phmeters_number; i++){
-  Serial.println((String)"Enter "+i+" calibration pH:");
-
+  Serial.println((String)"Calibration of pHmeter number "+i+" :");
   Serial.print("Enter first calibration pH: ");
-  while (Serial.available() == 0);
   Patron_1_pH = Serial.parseFloat();
-  Serial.println(Patron_1_pH);
-  pH_Digital = analogRead(pHSensorPin);
+  pH_Digital = ReadPh(pHDigPin[i]) 
   Patron_1_V = 5*pH_Digital/1024.0;
-  delay(500);
+  
+  //while (Serial.available() == 0);
+  //Patron_1_pH = Serial.parseFloat();
+  //Serial.println(Patron_1_pH);
+  //pH_Digital = analogRead(pHSensorPin);
+  //Patron_1_V = 5*pH_Digital/1024.0;
+  //delay(500);
 
   Serial.print("Enter second calibration pH: ");
   while (Serial.available() == 0);
   Patron_2_pH = Serial.parseFloat(); 
-  pH_Digital = analogRead(pHSensorPin);
+  pH_Digital = ReadPh(pHDigPin[i])
   Patron_2_V = 5*pH_Digital/1024.0;
   Serial.println(Patron_2_pH);
   delay(500);
+  
+  
+  //
+  //   INTRODUCIR CALCULO DE M Y N
+  //
 }
 }
 
@@ -99,9 +107,18 @@ delay(2000);
 
 
 
-void InizialicePHmeters(int number, int pin[4]){
+void InizialicePHmeters(int number, int pin[4]){ // Inizialice the required number of pins to an output, low mode. 
   for (int i=0; i < number; i++){
     pinMode(pin[i], OUTPUT); // pin is set to digital output
     digitalWrite(pin[i], LOW); // Starts in LOW mode
   }
+}
+
+ float ReadPh(int pin){ //Take 5 measures in a second a return the mean value
+  float temp;
+  for (int i=0; i<5;i++){ 
+    temp += analogRead(pin);
+    delay(200);
+  }
+  return(temp/5)
 }
