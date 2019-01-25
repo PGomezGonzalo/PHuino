@@ -3,15 +3,21 @@
 
 int phmeters_number; // Up to 4 pH-meters are supported in this program.
 
-const int pHAnPin[4] = {A0, A1, A2, A3};  // Each pH-meter has an analog imput. 
-                                          // FUTURE WORK: Improve measure through voltage normalization
-const int pHDigPin[4] = {2,3,4,5};
+const int pHAnPin1 = A0;  // Each pH-meter has an analog imput. 
+const int pHAnPin2 = A1;  // FUTURE WORK: Improve measure through voltage normalization
+const int pHAnPin3 = A2;
+const int pHAnPin4 = A3;
+
+const int pHDigPin1 = 2;
+const int pHDigPin2 = 3;
+const int pHDigPin3 = 4;
+const int pHDigPin4 = 5;
 
 // Variables for operation
-float pH_Control[4]; // Target pH value. An electrovalve should be open if needed.
-float m[4];   // pH = m * (measure) + n
-float n[4];
-float pH_Value[4]; //pH value: from 0[-] to 14[-]
+float pH_Control1,pH_Control2,pH_Control3,pH_Control4;  // Target pH value. An electrovalve should be open if needed.
+float m1, m2, m3, m4;   // pH = m * (measure) + n
+float n1, n2, n3, n4;
+float pH_Value1, pH_Value2, pH_Value3, pH_Value4; //pH value: from 0[-] to 14[-]
 float tolerance = 0.01; // Between 0 and 1, should be a value of a minimun variable change to asume is stabilized
 
 
@@ -43,27 +49,49 @@ while(phmeters_number > 4 || phmeters_number < 1)
   phmeters_number = Serial.parseInt();
 }
 
-InizialicePHmeters(phmeters_number, pHDigPin); // Set the pins in digital, low mode.
+pinMode(pHDigPin1, OUTPUT); // First digital output
+digitalWrite(pHDigPin1, LOW); // Starts in LOW mode
 
-for (int i=0; i<phmeters_number; i++){
-  Serial.println((String)"Enter "+i+" calibration pH:");
-
-  Serial.print("Enter first calibration pH: ");
-  while (Serial.available() == 0);
-  Patron_1_pH = Serial.parseFloat();
-  Serial.println(Patron_1_pH);
-  pH_Digital = analogRead(pHSensorPin);
-  Patron_1_V = 5*pH_Digital/1024.0;
-  delay(500);
-
-  Serial.print("Enter second calibration pH: ");
-  while (Serial.available() == 0);
-  Patron_2_pH = Serial.parseFloat(); 
-  pH_Digital = analogRead(pHSensorPin);
-  Patron_2_V = 5*pH_Digital/1024.0;
-  Serial.println(Patron_2_pH);
-  delay(500);
+if(phmeters_number > 1)
+{
+  pinMode(pHDigPin2, OUTPUT); // Second digital output (only if needed)
+  digitalWrite(pHDigPin2, LOW); // Starts in LOW mode
 }
+
+if(phmeters_number > 2)
+{
+  pinMode(pHDigPin3, OUTPUT); // Third digital output (only if needed)
+  digitalWrite(pHDigPin3, LOW); // Starts in LOW mode
+}
+
+if(phmeters_number > 3)
+{
+  pinMode(pHDigPin4, OUTPUT); // Third digital output (only if needed)
+  digitalWrite(pHDigPin4, LOW); // Starts in LOW mode
+}
+
+//Patron_1_V = 3.24;
+//Patron_1_pH = 4.0;
+
+//Patron_2_V = 2.81;
+//Patron_2_pH = 7.00;
+
+Serial.print("Enter first calibration pH: ");
+while (Serial.available() == 0);
+Patron_1_pH = Serial.parseFloat();
+Serial.println(Patron_1_pH);
+pH_Digital = analogRead(pHSensorPin);
+Patron_1_V = 5*pH_Digital/1024.0;
+delay(500);
+
+Serial.print("Enter second calibration pH: ");
+while (Serial.available() == 0);
+Patron_2_pH = Serial.parseFloat(); 
+pH_Digital = analogRead(pHSensorPin);
+Patron_2_V = 5*pH_Digital/1024.0;
+Serial.println(Patron_2_pH);
+delay(500);
+
 }
 
 void loop() {
@@ -95,13 +123,4 @@ if (pH_Value > pH_Control){
 
 delay(2000);
 
-}
-
-
-
-void InizialicePHmeters(int number, int pin[4]){
-  for (int i=0; i < number; i++){
-    pinMode(pin[i], OUTPUT); // pin is set to digital output
-    digitalWrite(pin[i], LOW); // Starts in LOW mode
-  }
 }
