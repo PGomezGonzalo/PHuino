@@ -17,14 +17,12 @@ float tolerance = 0.01; // Between 0 and 1, should be a value of a minimun varia
 
 // Variables for calibration
 float pH_Digital;  // pH value: from 0[-] to 1023[-] 
-float pH_Voltage;  // pH value: from 0[V] to 5[V]
 
+float Patron_1_pH;   // First known ph point 
+float Patron_1_Dig;  // First digital point, for calibration purposes
 
-float Patron_1_pH; // First known ph point 
-float Patron_1_V;  // First voltage point, for calibration purposes
-
-float Patron_2_V;   // Second known ph point
-float Patron_2_pH;  // Second voltage point, for calibration purposes
+float Patron_2_pH;   // Second known ph point
+float Patron_2_Dig;  // Second digital point, for calibration purposes
 
 
 // Auxiliar variables
@@ -33,12 +31,12 @@ float temp1; // Used to momentarily save some values
 void setup() {
 Serial.begin(9600);
 
-Serial.print("Number of pH-meters?: ");
+Serial.print("Number of pH-meters?: \n");
 while (Serial.available() == 0);
 phmeters_number = Serial.parseInt();
 while(phmeters_number > 4 || phmeters_number < 1) 
 {
-  Serial.print("Please, the number of pH-meteres should be between 1 and 4. Enter a new value:");
+  Serial.print("Please, the number of pH-meteres should be between 1 and 4. Enter a new value: \n");
   while (Serial.available() == 0);
   phmeters_number = Serial.parseInt();
 }
@@ -52,21 +50,21 @@ for (int i=0; i<phmeters_number; i++){
 // ---------------------------
   
   Serial.println((String)"Calibration of pHmeter number "+i+" :");
-  Serial.print("Enter first calibration pH: ");
+  Serial.print("Enter first calibration pH: \n");
+  while (Serial.available() == 0);
   Patron_1_pH = Serial.parseFloat();
-  pH_Digital = ReadPh(pHAnPin[i]) ;
-  Patron_1_V = 5*pH_Digital/1024.0;
-
-  Serial.print("Enter second calibration pH: ");
+  Patron_1_Dig = ReadPh(pHAnPin[i]) ;
+  Serial.println(Patron_1_pH);
+   
+  Serial.print("Enter second calibration pH: \n");
   while (Serial.available() == 0);
   Patron_2_pH = Serial.parseFloat(); 
-  pH_Digital = ReadPh(pHAnPin[i]);
-  Patron_2_V = 5*pH_Digital/1024.0;
+  Patron_2_Dig = ReadPh(pHAnPin[i]);
   Serial.println(Patron_2_pH);
   delay(500);
   
-  m[i] = (Patron_2_pH - Patron_1_pH)/(Patron_2_V - Patron_1_V);
-  n[i] = Patron_1_pH-m[i]*Patron_1_V;
+  m[i] = (Patron_2_pH - Patron_1_pH)/(Patron_2_Dig - Patron_1_Dig);
+  n[i] = Patron_1_pH-m[i]*Patron_1_Dig;
 }
 }
 
@@ -74,7 +72,7 @@ void loop() {
 
 for (int i=0; i<phmeters_number; i++){
   pH_Value[i]=m[i]*ReadPh(pHAnPin[i])+n[i];
-  Serial.print(pH_Value[i]);
+  Serial.println(pH_Value[i]);
 }
 // Serial.print(pH_Value);
 
@@ -87,33 +85,12 @@ for (int i=0; i<phmeters_number; i++){
 }
 
 delay(10000); // Time to wait between measures
-//pH_Digital = analogRead(pHSensorPin);
-//pH_Voltage = 5*pH_Digital/1024.0;
-//m = (Patron_2_pH - Patron_1_pH)/(Patron_2_V - Patron_1_V);
-//n = Patron_1_pH-m*Patron_1_V;
-//pH_Value = pH_Voltage*m + n;
 
-//Serial.print("pH Digital Read: ");
-//Serial.println(pH_Digital);
-//delay(500);
-//Serial.print("pH Voltage: ");
-//Serial.println(pH_Voltage, 2);
-//delay(500);
-//Serial.print("pH Value: ");
-//Serial.println(pH_Value, 2);
-//Serial.println(" ");
-
-//if (pH_Value > pH_Control){
-//  digitalWrite(2, HIGH);
-//  Serial.println(" -- Readjusting pH -- ");
-//  Serial.println(" ");
-//  delay(250);
-//  digitalWrite(2, LOW);
-//  delay(2000);
-//}
-
-//delay(2000);
-
+// -------------------------
+// OJO: NO se toma una serie de medidas cada 10 segundos.
+// Depende del tiempo de abertura de las electrovalvulas,
+// que varia en cada iteracion
+// -------------------------
 }
 
 
