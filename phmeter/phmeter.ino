@@ -3,6 +3,8 @@
 
 int phmeters_number; // Up to 4 pH-meters are supported in this program.
 
+unsigned long timer; // Time variable to adjust the workflow 
+
 const int pHAnPin[4] = {A0, A1, A2, A3};  // Each pH-meter has an analog imput. 
                                           // FUTURE WORK: Improve measure through voltage normalization
 const int pHDigPin[4] = {2,3,4,5};
@@ -69,10 +71,13 @@ for (int i=0; i<phmeters_number; i++){
 }
 
 void loop() {
+timer = millis();
 
+Serial.print("\n");
+Serial.print(timer);
 for (int i=0; i<phmeters_number; i++){
   pH_Value[i]=m[i]*ReadPh(pHAnPin[i])+n[i];
-  Serial.println(pH_Value[i]);
+  Serial.print(pH_Value[i]);
 }
 // Serial.print(pH_Value);
 
@@ -84,13 +89,7 @@ for (int i=0; i<phmeters_number; i++){
   }
 }
 
-delay(10000); // Time to wait between measures
-
-// -------------------------
-// OJO: NO se toma una serie de medidas cada 10 segundos.
-// Depende del tiempo de abertura de las electrovalvulas,
-// que varia en cada iteracion
-// -------------------------
+while((timer+10000)<millis());
 }
 
 
